@@ -42,22 +42,26 @@ const LiteLLMResponse = z.object({
 });
 
 // Detailed model info response schema
+// Note: .passthrough() allows extra fields from LiteLLM API (zod v4 is strict by default)
 const DetailedModelInfo = z.object({
   model_name: z.string(),
-  litellm_params: z.object({
-    model: z.string(),
-  }),
+  litellm_params: z
+    .object({
+      model: z.string(),
+    })
+    .passthrough(),
   model_info: z
     .object({
-      max_tokens: z.number().optional(),
-      max_input_tokens: z.number().optional(),
-      max_output_tokens: z.number().optional(),
-      litellm_provider: z.string().optional(),
-      mode: z.string().optional(),
+      max_tokens: z.number().nullable().optional(),
+      max_input_tokens: z.number().nullable().optional(),
+      max_output_tokens: z.number().nullable().optional(),
+      litellm_provider: z.string().nullable().optional(),
+      mode: z.string().nullable().optional(),
       supports_vision: z.boolean().nullable().optional(),
       supports_function_calling: z.boolean().nullable().optional(),
       supports_tool_choice: z.boolean().nullable().optional(),
     })
+    .passthrough()
     .optional(),
 });
 
@@ -108,7 +112,7 @@ function convertDetailedLiteLLMToModelConfig(response: unknown): ModelConfig[] {
       // Use LiteLLM's capability flags (most reliable), with fallback to provider detection
       const capabilities =
         detectCapabilitiesFromLiteLLM(modelInfo) ||
-        detectCapabilitiesFromProvider(model.model_name, modelInfo?.litellm_provider);
+        detectCapabilitiesFromProvider(model.model_name, modelInfo?.litellm_provider ?? undefined);
 
       return {
         name: model.model_name,
@@ -118,7 +122,7 @@ function convertDetailedLiteLLMToModelConfig(response: unknown): ModelConfig[] {
       };
     });
   } catch (error) {
-    console.warn('Failed to parse detailed model info, falling back to basic parsing');
+    console.warn('Failed to parse detailed model info, falling back to basic parsing', error);
     // If parsing fails, treat as basic response
     if (
       typeof response === 'object' &&
