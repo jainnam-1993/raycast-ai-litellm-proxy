@@ -16,6 +16,7 @@ export const CONTEXT_LENGTHS = {
   GEMINI: 1000000,
   GPT_4: 8192,
   GPT_3_5_TURBO: 16385,
+  QWEN3: 32768,
 } as const;
 
 // Server defaults

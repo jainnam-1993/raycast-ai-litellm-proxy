@@ -15,6 +15,8 @@ export function getModelContextLength(modelId: string): number {
     return CONTEXT_LENGTHS.GPT_4;
   } else if (modelId.includes('gpt-3.5-turbo')) {
     return CONTEXT_LENGTHS.GPT_3_5_TURBO;
+  } else if (modelId.includes('qwen3')) {
+    return CONTEXT_LENGTHS.QWEN3;
   }
 
   return DEFAULT_CONTEXT_LENGTH;

@@ -7,7 +7,10 @@ export class ModelNotFoundError extends Error {
 
 export class LiteLLMConnectionError extends Error {
   constructor(baseUrl: string, cause?: Error) {
-    super(`Cannot connect to LiteLLM at ${baseUrl}. Is your LiteLLM server running?`);
+    const dockerHint = baseUrl.includes('localhost') || baseUrl.includes('127.0.0.1')
+      ? ' If running in Docker, use host.docker.internal instead of localhost.'
+      : '';
+    super(`Cannot connect to LiteLLM at ${baseUrl}. Is your LiteLLM server running?${dockerHint}`);
     this.name = 'LiteLLMConnectionError';
     this.cause = cause;
   }

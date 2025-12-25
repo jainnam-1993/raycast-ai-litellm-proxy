@@ -339,8 +339,18 @@ function generateDigest(modelName: string): string {
 }
 
 export const generateModelsList = (models: ModelConfig[]) => {
+  // Deduplicate models by name (LiteLLM may have same model across multiple profiles for load balancing)
+  const seen = new Set<string>();
+  const uniqueModels = models.filter((config) => {
+    if (seen.has(config.name)) {
+      return false;
+    }
+    seen.add(config.name);
+    return true;
+  });
+
   return {
-    models: models.map((config) => ({
+    models: uniqueModels.map((config) => ({
       name: config.name,
       model: config.id,
       modified_at: new Date().toISOString(),
